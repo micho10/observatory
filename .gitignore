@@ -79,3 +79,4 @@ server.pid
 /dist/
 
 src/main/resources
+*.sc
