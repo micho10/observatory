@@ -7,5 +7,12 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ExtractionTest extends FunSuite {
 
-  
+  test("With invalid inputs, the output sequence must be empty"){
+
+  }
+
+  test("Temperatures file must exist"){
+
+  }
+
 }
