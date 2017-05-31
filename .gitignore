@@ -80,3 +80,4 @@ server.pid
 
 src/main/resources
 *.sc
+/metastore_db/
