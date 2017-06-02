@@ -1,11 +1,12 @@
 package observatory
 
-import java.io.InputStream
+import java.nio.file.Paths
 import java.time.LocalDate
 
-import org.apache.spark.sql.SparkSession
-
-import scala.io.Source
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{DoubleType, IntegerType}
 
 
 /**
@@ -13,11 +14,49 @@ import scala.io.Source
   */
 object Extraction {
 
+  Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+
   val spark: SparkSession = SparkSession
     .builder()
     .appName("Observatory")
     .config("spark.master", "local")
     .getOrCreate()
+
+  import spark.implicits._
+
+  private case class Station(id: String, lat: Double, long: Double)
+  private case class TempReading(id: String, month: Int, day: Int, temperature: Double)
+  private case class StnTempReadings(id: String, month: Int, day: Int, temperature: Double, lat: Double, long: Double)
+
+  def stations(stationsFile: String): Dataset[Station] =
+    spark
+      .read
+      .csv(resourcePath(stationsFile))
+      .select(
+        concat_ws("-", '_c0, '_c1).as("id"),
+        '_c2.as("lat").cast(DoubleType),
+        '_c3.as("long").cast(DoubleType)
+      )
+      .where('_c2.isNotNull && '_c3.isNotNull)
+      .as[Station]
+
+  def tempReadings(temperaturesFile: String): Dataset[TempReading] =
+    spark
+      .read
+      .csv(resourcePath(temperaturesFile))
+      .select(
+        concat_ws("-", '_c0, '_c1).as("id"),
+        '_c2.as("month").cast(IntegerType),
+        '_c3.as("day").cast(IntegerType),
+        (('_c4 - 32 ) / 1.8).as("temperature").cast(DoubleType)
+      )
+      .as[TempReading]
+
+  def stnTempReadings(stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[StnTempReadings] =
+    stations
+      .join(tempReadings, "id")
+      .as[StnTempReadings]
+
 
   /**
     * @param year             Year number
@@ -26,20 +65,12 @@ object Extraction {
     * @return A sequence containing triplets (date, location, temperature)
     */
   def locateTemperatures(year: Int, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Double)] = {
-    /* Transform F temperatures to C */
-    def tempFtoC(temperature: Double): Double = (temperature - 32) / 1.8
+    val localizedTemp =
+      stations(stationsFile)
+        .join(tempReadings(temperaturesFile), "id")
 
-    val stations = spark.read.csv(stationsFile)
-//    stations.select("_c0", "_c1", "_c2", "_c3").where($"_c2".isNotNull && $"_c3".isNotNull).distinct.orderBy($"_c0", $"_c1").withColumnRenamed("_c0", "stnId").withColumnRenamed("_c1", "wbanId").withColumnRenamed("_c2", "lat").withColumnRenamed("_c3", "long").show
 
-//    val stationStream: InputStream = getClass.getResourceAsStream(stationsFile)
-//    val stations = Source.fromInputStream(stationStream).getLines()
 
-    val tempReading = spark.read.csv(temperaturesFile)
-//    val temperatureStream: InputStream = getClass.getResourceAsStream(temperaturesFile)
-//    val temperatures = Source.fromInputStream(temperatureStream).getLines()
-
-    List.empty
   }
 
   /**
@@ -50,14 +81,10 @@ object Extraction {
     ???
   }
 
-  def openStations(stationsFile: String): Iterable[(String)] = {
-    val stationStream: InputStream = getClass.getResourceAsStream(stationsFile)
-    val stations = Source.fromInputStream(stationStream).getLines()
-    stations.toList
-  }
+//  def resourcePath(resource: String): String = Paths.get(getClass.getResource(resource).toURI).toString
+  def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
 
-  private case class Station(stnId: Int, wbanId: Int, lat: Double, lon: Double)
-
-  private case class TempReading(stnId: Int, wbanId: Int, month: Int, day: Int, temperature: Double)
+  /* Transform F temperatures to C */
+  def tempFtoC(temperature: Double): Double = (temperature - 32) / 1.8
 
 }
