@@ -65,7 +65,7 @@ object Extraction {
     * @return A sequence containing triplets (date, location, temperature)
     */
   def locateTemperatures(year: Int, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Double)] = {
-    val localizedTemp =
+    val joined =
       stations(stationsFile)
         .join(tempReadings(temperaturesFile), "id")
 
@@ -81,10 +81,6 @@ object Extraction {
     ???
   }
 
-//  def resourcePath(resource: String): String = Paths.get(getClass.getResource(resource).toURI).toString
   def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
-
-  /* Transform F temperatures to C */
-  def tempFtoC(temperature: Double): Double = (temperature - 32) / 1.8
 
 }
