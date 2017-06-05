@@ -75,7 +75,13 @@ object Extraction {
     * @return A sequence containing, for each location, the average temperature over the year.
     */
   def locationYearlyAverageRecords(records: Iterable[(LocalDate, Location, Double)]): Iterable[(Location, Double)] = {
-    ???
+    records
+      .par
+      .groupBy(_._2)
+      .mapValues(record => record.foldLeft(0.0)(
+        (a, r) => a + r._3 / record.size
+      ))
+      .seq
   }
 
   private def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
