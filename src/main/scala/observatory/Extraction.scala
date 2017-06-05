@@ -48,11 +48,13 @@ object Extraction {
       )
       .as[TempReading]
 
-  def stnTempReadings(stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[StnTempReading] =
+  def stnTempReadings(year: Int, stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[LocatedTemperature] =
     tempReadings
       .join(stations, "id")
       .as[StnTempReading]
-
+      .map(reading => (ReadingDate(year, reading.month, reading.day), Location(reading.lat, reading.long), reading.temperature))
+      .toDF("date", "location", "temperature")
+      .as[LocatedTemperature]
 
   /**
     * @param year             Year number
@@ -61,12 +63,11 @@ object Extraction {
     * @return A sequence containing triplets (date, location, temperature)
     */
   def locateTemperatures(year: Int, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Double)] = {
-    val joined =
-      stations(stationsFile)
-        .join(tempReadings(temperaturesFile), "id")
-//        .as[Joined]
-        .map(j => (LocalDate.of(year, j.month, j.day), Location(j.lat, j.long), j.temperature))
-        .toDF("date", "location", "temperature")
+    stnTempReadings(year, stations(stationsFile), tempReadings(temperaturesFile))
+      .collect()
+      .par
+      .map(ld => (ld.date.toLocalDate, ld.location, ld.temperature))
+      .seq
   }
 
   /**
@@ -77,6 +78,6 @@ object Extraction {
     ???
   }
 
-  def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
+  private def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
 
 }

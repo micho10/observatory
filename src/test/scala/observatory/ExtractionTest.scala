@@ -11,9 +11,5 @@ class ExtractionTest extends FunSuite {
 //
 //  }
 
-  test("It can find the Temperatures file and extract the data") {
-    val stations = Extraction.openStations("/stations.csv")
-
-  }
 
 }
