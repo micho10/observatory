@@ -24,10 +24,6 @@ object Extraction {
 
   import spark.implicits._
 
-  private case class Station(id: String, lat: Double, long: Double)
-  private case class TempReading(id: String, month: Int, day: Int, temperature: Double)
-  private case class StnTempReadings(id: String, month: Int, day: Int, temperature: Double, lat: Double, long: Double)
-
   def stations(stationsFile: String): Dataset[Station] =
     spark
       .read
@@ -52,10 +48,10 @@ object Extraction {
       )
       .as[TempReading]
 
-  def stnTempReadings(stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[StnTempReadings] =
-    stations
-      .join(tempReadings, "id")
-      .as[StnTempReadings]
+  def stnTempReadings(stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[StnTempReading] =
+    tempReadings
+      .join(stations, "id")
+      .as[StnTempReading]
 
 
   /**
@@ -68,9 +64,9 @@ object Extraction {
     val joined =
       stations(stationsFile)
         .join(tempReadings(temperaturesFile), "id")
-
-
-
+//        .as[Joined]
+        .map(j => (LocalDate.of(year, j.month, j.day), Location(j.lat, j.long), j.temperature))
+        .toDF("date", "location", "temperature")
   }
 
   /**
