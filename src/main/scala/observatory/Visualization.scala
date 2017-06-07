@@ -15,7 +15,12 @@ object Visualization {
     * @return The predicted temperature at `location`
     */
   def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = {
-    ???
+    val predictions: Iterable[(Double, Double)] = ???
+
+    predictions.find(_._1 == 0.0) match {
+      case Some((_, temperature)) => temperature
+      case _                      => idw(2)(distance)//(predictions)
+    }
   }
 
   /**
@@ -47,14 +52,27 @@ object Visualization {
   private def distance(p: Location, q: Location): Double = {
     val earth_radius = 6371
 
-    val latDistance = toRadians(p.lat - q.lat)
+    val lat1 = toRadians(p.lat)
+    val lat2 = toRadians(q.lat)
     val lonDistance = toRadians(p.lon - q.lon)
 
-    earth_radius
+    val centralAngle = acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lonDistance))
+
+    earth_radius * centralAngle
   }
 
 
-  private def idw = ???
+  /**
+    * Inverse distance weighting
+    *
+    * @param power    power parameter, a positive real number
+    * @param distance function to calculate the distance between 2 points
+    * @return         the interpolated value
+    */
+  private def idw(power: Double)(distance: (Location, Location) => Double): Double = {
+    assert(power > 0)
+    1 / pow(distance(), power)
+  }
 
 }
 
