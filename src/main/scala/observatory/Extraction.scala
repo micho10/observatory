@@ -52,7 +52,7 @@ object Extraction {
     tempReadings
       .join(stations, "id")
       .as[StnTempReading]
-      .map(reading => (ReadingDate(year, reading.month, reading.day), Location(reading.lat, reading.long), reading.temperature))
+      .map(reading => (ReadingDate(year, reading.month, reading.day), Location(reading.lat, reading.lon), reading.temperature))
       .toDF("date", "location", "temperature")
       .as[LocatedTemperature]
 

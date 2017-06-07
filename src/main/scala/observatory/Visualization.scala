@@ -1,6 +1,8 @@
 package observatory
 
-import com.sksamuel.scrimage.{Image, Pixel}
+import com.sksamuel.scrimage.Image
+
+import scala.math._
 
 /**
   * 2nd milestone: basic visualization
@@ -33,6 +35,26 @@ object Visualization {
   def visualize(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)]): Image = {
     ???
   }
+
+
+  /**
+    * Δσ = arccos( sin φ1 * sin φ2 + cos φ1 * cos φ2 * cos (Δλ))
+    *
+    * @param p points
+    * @param q point
+    * @return  the distance between both points
+    */
+  private def distance(p: Location, q: Location): Double = {
+    val earth_radius = 6371
+
+    val latDistance = toRadians(p.lat - q.lat)
+    val lonDistance = toRadians(p.lon - q.lon)
+
+    earth_radius
+  }
+
+
+  private def idw = ???
 
 }
 
