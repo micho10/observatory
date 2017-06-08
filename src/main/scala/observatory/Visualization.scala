@@ -15,8 +15,15 @@ object Visualization {
     * @return The predicted temperature at `location`
     */
   def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = {
-    val weightedLocations = weightKnownLocations(temperatures, location, power = 2)(distance)
-    idw(weightedLocations)
+    val temperature = temperatures.find(_._1 == location) match {
+      case Some(loc) => loc._2
+      case None => {
+        val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(distance)
+        idw(weightedLocations)
+      }
+    }
+
+    temperature
   }
 
   /**
@@ -64,43 +71,23 @@ object Visualization {
     * @return         the interpolated value
     */
   private def idw(weightedLocations: Iterable[(Location, Double, Double)]): Double = {
-    var numerator = 0.0
-    var denominator = 0.0
+    var (numerator, denominator) = (0.0, 0.0)
+    
 
-
-//    def calculateIDW(temps: Iterable[(Location, Double)], numerator: Double, denominator: Double): Double = {
-//      if (temps.isEmpty) numerator / denominator
-//      else {
-//        val known = temps.head
-//        val dist = distance(known._1, location)
-//        dist match {
-//          case 0 => calculateIDW(temps.drop(1), numerator + )
-//          case _ => ???
-//        }
-//      }
-//    }
-
-//    calculateIDW(temperatures, 0.0, 0.0)
     numerator / denominator
   }
 
   /**
     *
-    * @param temperatures
-    * @param location
-    * @param power        power parameter, a positive real number
-    * @param distance     function to calculate the distance between 2 points
-    * @return
+    * @param temperatures Known temperatures: pairs containing a location and the temperature at this location
+    * @param location     Location where to predict the temperature
+    * @param power        Power parameter, a positive real number
+    * @param distance     Function to calculate the distance between 2 points
+    * @return             Tupla of known temperatures + weight
     */
   private def weightKnownLocations(temperatures: Iterable[(Location, Double)], location: Location, power: Double)
                                   (distance: (Location, Location) => Double): Iterable[(Location, Double, Double)] = {
-    def weight(newLocation: Location, known: Location): Double = {
-      val dist = distance(known, location)
-      dist match {
-        case 0 => 0
-        case _ => 1 / pow(dist, power)
-      }
-    }
+    def weight(newLocation: Location, known: Location): Double = 1 / pow(distance(known, location), power)
 
     assert(power > 0)
     temperatures.map(temp => (temp._1, temp._2, weight(location, temp._1)))
