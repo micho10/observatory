@@ -15,12 +15,18 @@ object Visualization {
     * @return The predicted temperature at `location`
     */
   def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = {
+    //TODO Consider the special case of small distance
+    /*
+      - calculate collection distances between the known points and the new location
+        - case Some (dist <= 1 km) => use temperature of the closest point
+        - case None                => idw()
+     */
+
     val temperature = temperatures.find(_._1 == location) match {
       case Some(loc) => loc._2
-      case None => {
+      case None =>
         val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(distance)
         idw(weightedLocations)
-      }
     }
 
     temperature
@@ -48,9 +54,9 @@ object Visualization {
   /**
     * Δσ = arccos( sin φ1 * sin φ2 + cos φ1 * cos φ2 * cos (Δλ))
     *
-    * @param p points
-    * @param q point
-    * @return  the distance between both points
+    * @param p Point
+    * @param q Point
+    * @return  The distance between both points
     */
   private def distance(p: Location, q: Location): Double = {
     val earth_radius = 6371
@@ -64,15 +70,18 @@ object Visualization {
     earth_radius * centralAngle
   }
 
-
   /**
-    * Inverse distance weighting
+    * Spatial interpolation using the Inverse distance weighting algorithm
     *
-    * @return         the interpolated value
+    * @param weightedLocations  Tupla of known temperatures + weight
+    * @return                   The interpolated value
     */
   private def idw(weightedLocations: Iterable[(Location, Double, Double)]): Double = {
     var (numerator, denominator) = (0.0, 0.0)
-    
+
+    for {
+      loc <- weightedLocations
+    } yield (numerator += loc._2 * loc._3, denominator += loc._2)
 
     numerator / denominator
   }
