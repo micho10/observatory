@@ -38,7 +38,13 @@ object Visualization {
     * @return The color that corresponds to `value`, according to the color scale defined by `points`
     */
   def interpolateColor(points: Iterable[(Double, Color)], value: Double): Color = {
-    ???
+    points.find(_._1 == value) match {
+      case Some((_, color)) => color
+      case None             => {
+        val (smaller, greater) = points.toList.sortBy(_._1).partition(_._1 < value)
+        linearInterpolation(smaller.tail, greater.head)
+      }
+    }
   }
 
   /**
@@ -80,8 +86,8 @@ object Visualization {
     var (numerator, denominator) = (0.0, 0.0)
 
     for {
-      loc <- weightedLocations
-    } yield (numerator += loc._2 * loc._3, denominator += loc._2)
+      wloc <- weightedLocations
+    } yield (numerator += wloc._2 * wloc._3, denominator += wloc._2)
 
     numerator / denominator
   }
@@ -101,6 +107,11 @@ object Visualization {
     assert(power > 0)
     temperatures.map(temp => (temp._1, temp._2, weight(location, temp._1)))
   }
+
+  private def linearInterpolation(smaller.tail, greater.head): Color {
+
+  }
+
 
 }
 
