@@ -44,6 +44,9 @@ object Visualization {
     * @return A 360×180 image where each pixel shows the predicted temperature at its location
     */
   def visualize(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)]): Image = {
+    val image_height  = 180
+    val image_width   = 360
+
     /*
           0 -> (-180, 90)  ...   180 -> (0, 90)  ...   359 -> (179, 90)
       ...
@@ -51,25 +54,30 @@ object Visualization {
       ...
       64440 -> (-180, -90) ... 64620 -> (0, -90) ... 64799 -> (179, -90)
      */
-    def project(position: Int): Location = ???
+    def project(position: Int): Location = {
+      val x = position % image_width
+      val y = position / image_width
 
-    def createPixelMap(width: Int, height: Int): Array[Pixel] = ???
-//      (0 until height * width).par.map { position =>
-//        position -> interpolateColor(
-//          colors,
-//          predictTemperature(
-//            temperatures,
-//            mapProject(position)
-//          )
-//        )
-//      }
+      Location(image_height / 2 - y, x - image_width / 2)
+    }
 
-    val image_height  = 180
-    val image_width   = 360
+    def createPixelMap(width: Int, height: Int): Seq[Pixel] =
+      (0 until height * width).par.map { position =>
+        position -> interpolateColor(
+          colors,
+          predictTemperature(
+            temperatures,
+            project(position)
+          )
+        ).toPixel()
+      }
+      .seq
+      .sortBy(_._1)
+      .map(_._2)
 
     val pixels = createPixelMap(image_width, image_height)
 
-    Image(image_width, image_height, pixels)
+    Image(image_width, image_height, pixels.toArray)
   }
 
 

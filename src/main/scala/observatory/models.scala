@@ -2,9 +2,13 @@ package observatory
 
 import java.time.LocalDate
 
+import com.sksamuel.scrimage.Pixel
+
 case class Location(lat: Double, lon: Double)
 
-case class Color(red: Int, green: Int, blue: Int)
+case class Color(red: Int, green: Int, blue: Int) {
+  def toPixel(alpha: Int = 255): Pixel = Pixel(red, green, blue, alpha)
+}
 
 case class Station(id: String, lat: Double, lon: Double)
 
