@@ -108,10 +108,18 @@ object Visualization {
     * @return  The color inferred for the new value
     */
   private def linearInterpolation(p: Option[(Double, Color)], q: Option[(Double, Color)], value: Double): Color = {
-    def linearInterpolator(p: (Double, Color), q: (Double, Color)): Color = ???
+    def lerp(p: Double, q: Double, x: Double): Double = (1 - x) * p + x * q
+    def color(baseColor: Color, value: Double): Color =
+      Color(
+        round(baseColor.blue * value).toInt,
+        round(baseColor.green * value).toInt,
+        round(baseColor.red * value).toInt
+      )
 
     (p, q) match {
-      case (Some(p), Some(q))             => linearInterpolator(p, q)
+      case (Some(p), Some(q))             =>
+        val gradient = lerp(p._1, q._1, value)
+        color(p._2, gradient)
       case (Some((pValue, pColor)), None) => pColor
       case (None, Some((qValue, qColor))) => qColor
       case _                              => Color(0, 0, 0)
@@ -145,3 +153,4 @@ object Visualization {
 //  f.*(y2, w))
 //}
 //}
+
