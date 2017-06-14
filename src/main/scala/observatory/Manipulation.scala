@@ -11,15 +11,17 @@ object Manipulation {
     *         returns the predicted temperature at this location
     */
   def makeGrid(temperatures: Iterable[(Location, Double)]): (Int, Int) => Double = {
+//    val lat_range = -89 until 90
+//    val lon_range = -180 until 179
     ???
   }
 
   /**
-    * @param temperaturess Sequence of known temperatures over the years (each element of the collection
-    *                      is a collection of pairs of location and temperature)
+    * @param temperatures Sequence of known temperatures over the years (each element of the collection
+    *                     is a collection of pairs of location and temperature)
     * @return A function that, given a latitude and a longitude, returns the average temperature at this location
     */
-  def average(temperaturess: Iterable[Iterable[(Location, Double)]]): (Int, Int) => Double = {
+  def average(temperatures: Iterable[Iterable[(Location, Double)]]): (Int, Int) => Double = {
     ???
   }
 
