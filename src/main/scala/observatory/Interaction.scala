@@ -1,6 +1,7 @@
 package observatory
 
 import com.sksamuel.scrimage.{Image, Pixel}
+import observatory.Visualization.{interpolateColor, predictTemperature}
 
 /**
   * 3rd milestone: interactive visualization
@@ -13,9 +14,7 @@ object Interaction {
     * @param y Y coordinate
     * @return The latitude and longitude of the top-left corner of the tile, as per http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
     */
-  def tileLocation(zoom: Int, x: Int, y: Int): Location = {
-    ???
-  }
+  def tileLocation(zoom: Int, x: Int, y: Int): Location = Tile(x, y, zoom).toLocation
 
   /**
     * @param temperatures Known temperatures
@@ -26,7 +25,31 @@ object Interaction {
     * @return A 256×256 image showing the contents of the tile defined by `x`, `y` and `zooms`
     */
   def tile(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)], zoom: Int, x: Int, y: Int): Image = {
-    ???
+    val image_height = 256
+    val image_width  = 256
+    val transparency = 127
+
+    def createPixelMap(width: Int, height: Int): Seq[Pixel] =
+      (0 until height * width).par.map{ position =>
+
+        val xProjection = (position % width) / width + x
+        val yProjection = (position / width) / width + x
+
+        position -> interpolateColor(
+          colors,
+          predictTemperature(
+            temperatures,
+            tileLocation(xProjection, yProjection, zoom)
+          )
+        ).toPixel(transparency)
+      }
+        .seq
+        .sortBy(_._1)
+        .map(_._2)
+
+    val pixels = createPixelMap(image_width, image_height)
+
+    Image(image_width, image_height, pixels.toArray)
   }
 
   /**
@@ -40,7 +63,13 @@ object Interaction {
     yearlyData: Iterable[(Int, Data)],
     generateImage: (Int, Int, Int, Int, Data) => Unit
   ): Unit = {
-    ???
+    for {
+      (year, data) <- yearlyData
+      zoom <- 0 to 3
+      x <- 0 until 1 << zoom
+      y <- 0 until 1 << zoom
+    } yield generateImage(year, zoom, x, y, data)
+    ()
   }
 
 }

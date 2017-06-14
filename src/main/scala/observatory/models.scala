@@ -29,12 +29,12 @@ case class ReadingDate(year: Int, month: Int, day: Int) {
 /**
   * Source: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Mathematics
   *
-  * @param x    Coordinate
-  * @param y    Coordinate
+  * @param x    X coordinate
+  * @param y    Y coordinate
   * @param zoom Zoom level
   */
-case class Tile(x: Double, y: Double, zoom: Short) {
-  def toLocation = new Location(
+case class Tile(x: Int, y: Int, zoom: Int) {
+  def toLocation = Location(
     toDegrees(atan(sinh(Pi * (1.0 - 2.0 * y / (1 << zoom))))),
     x / (1 << zoom) * 360 - 180
   )
