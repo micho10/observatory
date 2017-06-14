@@ -62,7 +62,7 @@ object Visualization {
     }
 
     def createPixelMap(width: Int, height: Int): Seq[Pixel] =
-      (0 until height * width).par.map { position =>
+      (0 until height * width).par.map{ position =>
         position -> interpolateColor(
           colors,
           predictTemperature(
