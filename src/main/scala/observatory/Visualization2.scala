@@ -24,9 +24,7 @@ object Visualization2 {
     d01: Double,
     d10: Double,
     d11: Double
-  ): Double = {
-    ???
-  }
+  ): Double = d00 * (1 - x) * (1 - y) + d10 * x * (1 - y) + d01 * (1 - x) * y + d11 * x * y
 
   /**
     * @param grid Grid to visualize
