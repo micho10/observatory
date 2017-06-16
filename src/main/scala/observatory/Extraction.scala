@@ -48,14 +48,6 @@ object Extraction {
       )
       .as[TempReading]
 
-  def stnTempReadings(year: Int, stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[LocatedTemperature] =
-    tempReadings
-      .join(stations, "id")
-      .as[StnTempReading]
-      .map(reading => (ReadingDate(year, reading.month, reading.day), Location(reading.lat, reading.lon), reading.temperature))
-      .toDF("date", "location", "temperature")
-      .as[LocatedTemperature]
-
   /**
     * @param year             Year number
     * @param stationsFile     Path of the stations resource file to use (e.g. "/stations.csv")
@@ -63,6 +55,15 @@ object Extraction {
     * @return A sequence containing triplets (date, location, temperature)
     */
   def locateTemperatures(year: Int, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Double)] = {
+
+    def stnTempReadings(year: Int, stations: Dataset[Station], tempReadings: Dataset[TempReading]): Dataset[LocatedTemperature] =
+      tempReadings
+        .join(stations, "id")
+        .as[StnTempReading]
+        .map(reading => (ReadingDate(year, reading.month, reading.day), Location(reading.lat, reading.lon), reading.temperature))
+        .toDF("date", "location", "temperature")
+        .as[LocatedTemperature]
+
     stnTempReadings(year, stations(stationsFile), tempReadings(temperaturesFile))
       .collect()
       .par
@@ -74,7 +75,7 @@ object Extraction {
     * @param records A sequence containing triplets (date, location, temperature)
     * @return A sequence containing, for each location, the average temperature over the year.
     */
-  def locationYearlyAverageRecords(records: Iterable[(LocalDate, Location, Double)]): Iterable[(Location, Double)] = {
+  def locationYearlyAverageRecords(records: Iterable[(LocalDate, Location, Double)]): Iterable[(Location, Double)] =
     records
       .par
       .groupBy(_._2)
@@ -82,7 +83,6 @@ object Extraction {
         (a, r) => a + r._3 / record.size
       ))
       .seq
-  }
 
   private def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
 

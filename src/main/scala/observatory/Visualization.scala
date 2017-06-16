@@ -44,8 +44,8 @@ object Visualization {
     * @return A 360×180 image where each pixel shows the predicted temperature at its location
     */
   def visualize(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)]): Image = {
-    val image_height  = 180
-    val image_width   = 360
+    val image_height = 180
+    val image_width  = 360
 
     /*
           0 -> (-180, 90)  ...   180 -> (0, 90)  ...   359 -> (179, 90)

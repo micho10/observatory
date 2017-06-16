@@ -41,7 +41,58 @@ object Visualization2 {
     x: Int,
     y: Int
   ): Image = {
-    ???
+    val image_height = 256
+    val image_width  = 256
+
+    def createPixelMap(width: Int, height: Int, x: Int, y: Int): Seq[Pixel] = ???
+//      (0 until height * width).par.map{ position =>
+//        position -> interpolateColor(
+//          colors,
+//          predictTemperature(
+//            temperatures,
+//            project(position)
+//          )
+//        ).toPixel()
+//      }
+//        .seq
+//        .sortBy(_._1)
+//        .map(_._2)
+
+//    for {
+//      i <- 0 until image_width
+//      j <- 0 until image_height
+//    } yield {
+//      val temp = Tile(x + i, y + j, zoom).toLocation
+//    }
+
+    def interpolateColor(colors: Iterable[(Double, Color)], x: Int, y: Int): Color = ???
+
+    /*
+     val temp = grid(tile(x, y, zoom).toLocation)
+     */
+
+    val pixels = createPixelMap(image_width, image_height, x, y)
+
+    Image(image_width, image_height, pixels.toArray)
   }
 
 }
+
+
+/*
+    def createPixelMap(width: Int, height: Int): Seq[Pixel] =
+      (0 until height * width).par.map{ position =>
+        position -> interpolateColor(
+          colors,
+          predictTemperature(
+            temperatures,
+            project(position)
+          )
+        ).toPixel()
+      }
+      .seq
+      .sortBy(_._1)
+      .map(_._2)
+
+    val pixels = createPixelMap(image_width, image_height)
+ */
