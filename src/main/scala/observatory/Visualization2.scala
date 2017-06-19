@@ -41,10 +41,39 @@ object Visualization2 {
     x: Int,
     y: Int
   ): Image = {
-    val image_height = 256
-    val image_width  = 256
+//    def dxy(x: Int, y: Int, width: Int, height: Int): Double =
+//      grid(x * width, y * height)
+////      for {
+////        i <- 0 to 1
+////        j <- 0 to 1
+////      } yield grid(x + i * width, y + j)
 
-    def createPixelMap(width: Int, height: Int, x: Int, y: Int): Seq[Pixel] = ???
+    def toPixelMap(height: Int, width: Int): IndexedSeq[Pixel] = for {
+      i <- 0 until width
+      j <- 0 until height
+    } yield {
+      val location = Tile(x + i, y + j, zoom).toLocation
+      val temperature = grid(location.lat, location.lon)
+      Visualization.interpolateColor(
+        colors,
+        bilinearInterpolation(x + i, y + i, x, x + width, y, y + width)
+      ).toPixel(alpha = 127)
+    }
+
+    // Image precision
+    val image_height = 256
+    val image_width = 256
+
+    val pixels = toPixelMap(image_height, image_width)
+
+    Image(image_width, image_height, pixels.toArray)
+  }
+
+//    def createPixelMap(width: Int, height: Int, x: Int, y: Int): Seq[Pixel] = {
+//      val location = Tile(x, y, zoom).toLocation
+//      val temperature = grid(location.lat, location.lon)
+//    }
+
 //      (0 until height * width).par.map{ position =>
 //        position -> interpolateColor(
 //          colors,
@@ -65,16 +94,20 @@ object Visualization2 {
 //      val temp = Tile(x + i, y + j, zoom).toLocation
 //    }
 
-    def interpolateColor(colors: Iterable[(Double, Color)], x: Int, y: Int): Color = ???
+//    def interpolateColor(colors: Iterable[(Double, Color)], x: Int, y: Int): Color = ???
 
     /*
      val temp = grid(tile(x, y, zoom).toLocation)
      */
 
-    val pixels = createPixelMap(image_width, image_height, x, y)
-
-    Image(image_width, image_height, pixels.toArray)
-  }
+    /*
+    create temperature map
+    temperature => color map (pixels)
+    Image(w, h, color)
+     */
+//    val pixels = createPixelMap(image_width, image_height, x, y)
+//
+//    Image(image_width, image_height, pixels.toArray)
 
 }
 
