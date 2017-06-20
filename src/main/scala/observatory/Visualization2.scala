@@ -1,5 +1,6 @@
 package observatory
 
+import scala.math.round
 import com.sksamuel.scrimage.{Image, Pixel}
 
 /**
@@ -45,20 +46,24 @@ object Visualization2 {
     val image_height = 256
     val image_width = 256
 
-//    def dxy(x: Int, y: Int, width: Int, height: Int): Double =
-//      grid(x * width, y * height)
-////      for {
-////        i <- 0 to 1
-////        j <- 0 to 1
-////      } yield grid(x + i * width, y + j)
-
     // Transforms the tiles' coordinates into (lat, lon) location coordinates
-    def toLocationsMap: Map[Int, Location] =
-      (for {
+    def toLocationsMap: Map[Int, Location] = (
+      for {
         i <- 0 until image_width
         j <- 0 until image_height
-      } yield i + j * image_width -> Tile(x + i, y + j, zoom).toLocation)
-        .toMap
+      } yield i + j * image_width -> Tile(x + i, y + j, zoom).toLocation
+      ).toMap
+
+    def makeCornersGrid(width: Int, height: Int, temperatures: Map[Int, Double]): (Int, Int) => Double = {
+      val corners: Map[(Int, Int), Double] = Map(
+        (0, 0) -> temperatures.head._2,
+        (0, 1) -> temperatures(width),
+        (1, 0) -> temperatures(height * y),
+        (1, 1) -> temperatures.last._2
+      )
+
+      (row, col) => corners(row, col)
+    }
 
     def toPixelMap(height: Int, width: Int): IndexedSeq[Pixel] = ???
 //      for {
@@ -74,10 +79,12 @@ object Visualization2 {
 //    }
 
 
-    val locations: Map[Int, Location] = toLocationsMap
+    val locations = toLocationsMap
 
     // Transforms the locations map into a temperature map
-    locations.mapValues(location => grid(location.lat, location.lon))
+    val temperatures = locations.mapValues(location => grid(round(location.lat).toInt, round(location.lon).toInt))
+
+    val d = makeCornersGrid(image_width, image_height, temperatures)
 
     val pixels = toPixelMap(image_height, image_width)
 
