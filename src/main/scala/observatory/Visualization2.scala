@@ -41,6 +41,10 @@ object Visualization2 {
     x: Int,
     y: Int
   ): Image = {
+    // Image precision
+    val image_height = 256
+    val image_width = 256
+
 //    def dxy(x: Int, y: Int, width: Int, height: Int): Double =
 //      grid(x * width, y * height)
 ////      for {
@@ -48,21 +52,32 @@ object Visualization2 {
 ////        j <- 0 to 1
 ////      } yield grid(x + i * width, y + j)
 
-    def toPixelMap(height: Int, width: Int): IndexedSeq[Pixel] = for {
-      i <- 0 until width
-      j <- 0 until height
-    } yield {
-      val location = Tile(x + i, y + j, zoom).toLocation
-      val temperature = grid(location.lat, location.lon)
-      Visualization.interpolateColor(
-        colors,
-        bilinearInterpolation(x + i, y + i, x, x + width, y, y + width)
-      ).toPixel(alpha = 127)
-    }
+    // Transforms the tiles' coordinates into (lat, lon) location coordinates
+    def toLocationsMap: Map[Int, Location] =
+      (for {
+        i <- 0 until image_width
+        j <- 0 until image_height
+      } yield i + j * image_width -> Tile(x + i, y + j, zoom).toLocation)
+        .toMap
 
-    // Image precision
-    val image_height = 256
-    val image_width = 256
+    def toPixelMap(height: Int, width: Int): IndexedSeq[Pixel] = ???
+//      for {
+//      i <- 0 until width
+//      j <- 0 until height
+//    } yield {
+//      val location = Tile(x + i, y + j, zoom).toLocation
+//      val temperature = grid(location.lat, location.lon)
+//      Visualization.interpolateColor(
+//        colors,
+//        bilinearInterpolation(x + i, y + i, x, x + width, y, y + width)
+//      ).toPixel(alpha = 127)
+//    }
+
+
+    val locations: Map[Int, Location] = toLocationsMap
+
+    // Transforms the locations map into a temperature map
+    locations.mapValues(location => grid(location.lat, location.lon))
 
     val pixels = toPixelMap(image_height, image_width)
 
