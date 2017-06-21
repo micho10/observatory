@@ -1,7 +1,10 @@
 package observatory
 
-import scala.math.round
 import com.sksamuel.scrimage.{Image, Pixel}
+
+import observatory.Visualization.interpolateColor
+
+import scala.math._
 
 /**
   * 5th milestone: value-added information visualization
@@ -47,49 +50,79 @@ object Visualization2 {
     val image_width = 256
 
     // Transforms the tiles' coordinates into (lat, lon) location coordinates
-    def toLocationsMap: Map[Int, Location] = (
+    def createLocationsMap: IndexedSeq[(Int, Location)] =
       for {
         i <- 0 until image_width
         j <- 0 until image_height
       } yield i + j * image_width -> Tile(x + i, y + j, zoom).toLocation
-      ).toMap
 
-    def makeCornersGrid(width: Int, height: Int, temperatures: Map[Int, Double]): (Int, Int) => Double = {
-      val corners: Map[(Int, Int), Double] = Map(
-        (0, 0) -> temperatures.head._2,
-        (0, 1) -> temperatures(width),
-        (1, 0) -> temperatures(height * y),
-        (1, 1) -> temperatures.last._2
-      )
+    val pixels = createLocationsMap.par.map {
+      case (position, location) =>
+        val d00 = grid(floor(location.lat).toInt, floor(location.lon).toInt)
+        val d01 = grid(floor(location.lat).toInt, ceil(location.lon).toInt)
+        val d10 = grid(ceil(location.lat).toInt, floor(location.lon).toInt)
+        val d11 = grid(ceil(location.lat).toInt, ceil(location.lon).toInt)
 
-      (row, col) => corners(row, col)
+        position -> interpolateColor(
+          colors,
+          bilinearInterpolation(x, y, d00, d01, d10, d11)
+        ).toPixel(127)
     }
-
-    def toPixelMap(height: Int, width: Int): IndexedSeq[Pixel] = ???
-//      for {
-//      i <- 0 until width
-//      j <- 0 until height
-//    } yield {
-//      val location = Tile(x + i, y + j, zoom).toLocation
-//      val temperature = grid(location.lat, location.lon)
-//      Visualization.interpolateColor(
-//        colors,
-//        bilinearInterpolation(x + i, y + i, x, x + width, y, y + width)
-//      ).toPixel(alpha = 127)
-//    }
-
-
-    val locations = toLocationsMap
-
-    // Transforms the locations map into a temperature map
-    val temperatures = locations.mapValues(location => grid(round(location.lat).toInt, round(location.lon).toInt))
-
-    val d = makeCornersGrid(image_width, image_height, temperatures)
-
-    val pixels = toPixelMap(image_height, image_width)
+      .seq
+      .sortBy(_._1)
+      .map(_._2)
 
     Image(image_width, image_height, pixels.toArray)
   }
+
+  //    // Transforms the tiles' coordinates into (lat, lon) location coordinates
+//    def createLocationsMap: Map[Int, Location] = (
+//      for {
+//        i <- 0 until image_width
+//        j <- 0 until image_height
+//      } yield i + j * image_width -> Tile(x + i, y + j, zoom).toLocation
+//      ).toMap
+//
+//    def makeCornersGrid(width: Int, height: Int, temperatures: Map[Int, Double]): (Int, Int) => Double = {
+//      val corners: Map[(Int, Int), Double] = Map(
+//        (0, 0) -> temperatures.head._2,
+//        (0, 1) -> temperatures(width),
+//        (1, 0) -> temperatures(height * y),
+//        (1, 1) -> temperatures.last._2
+//      )
+//
+//      (row, col) => corners(row, col)
+//    }
+//
+//    def createPixelMap(height: Int, width: Int): IndexedSeq[Pixel] = ???
+////      for {
+////      i <- 0 until width
+////      j <- 0 until height
+////    } yield {
+////      val location = Tile(x + i, y + j, zoom).toLocation
+////      val temperature = grid(location.lat, location.lon)
+////      Visualization.interpolateColor(
+////        colors,
+////        bilinearInterpolation(x + i, y + i, x, x + width, y, y + width)
+////      ).toPixel(alpha = 127)
+////    }
+//
+//    // Transforms the locations map into a temperature map
+//    val temperatures = createLocationsMap.mapValues(location => grid(round(location.lat).toInt, round(location.lon).toInt))
+//
+//    val d = makeCornersGrid(image_width, image_height, temperatures)
+//
+//    val pixels = temperatures.map(index =>
+//      interpolateColor(
+//        colors,
+//        bilinearInterpolation(index % image_width, index / image_width, d(0, 0), d(0, 1), d(1, 0), d(1, 1))
+//      )
+//    )
+//
+////    val pixels = createPixelMap(image_height, image_width)
+
+
+
 
 //    def createPixelMap(width: Int, height: Int, x: Int, y: Int): Seq[Pixel] = {
 //      val location = Tile(x, y, zoom).toLocation
