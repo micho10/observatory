@@ -1,7 +1,6 @@
 package observatory
 
-import com.sksamuel.scrimage.{Image, Pixel}
-
+import com.sksamuel.scrimage.Image
 import observatory.Visualization.interpolateColor
 
 import scala.math._
@@ -64,9 +63,12 @@ object Visualization2 {
         val d10 = grid(ceil(location.lat).toInt, floor(location.lon).toInt)
         val d11 = grid(ceil(location.lat).toInt, ceil(location.lon).toInt)
 
+        val xCoord = location.lon - floor(location.lat).toInt
+        val yCoord = ceil(location.lat).toInt - location.lat
+
         position -> interpolateColor(
           colors,
-          bilinearInterpolation(tile.x, tile.y, d00, d01, d10, d11)
+          bilinearInterpolation(xCoord, yCoord, d00, d01, d10, d11)
         ).toPixel(127)
     }
       .seq
