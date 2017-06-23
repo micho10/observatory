@@ -27,9 +27,9 @@ object Extraction {
   def stations(stationsFile: String): Dataset[Station] =
     spark
       .read
-      .csv(resourcePath(stationsFile))    // csv() only works if the file contains a header
+      .csv(resourcePath(stationsFile))    // csv() only works if the file contains a header??
       .select(
-        concat_ws("-", '_c0, '_c1).as("id"),
+        concat_ws("-", coalesce('_c0, lit("")), '_c1).as("id"),
         '_c2.as("lat").cast(DoubleType),
         '_c3.as("lon").cast(DoubleType)
       )
@@ -41,7 +41,7 @@ object Extraction {
       .read
       .csv(resourcePath(temperaturesFile))
       .select(
-        concat_ws("-", '_c0, '_c1).as("id"),
+        concat_ws("-", coalesce('_c0, lit("")), '_c1).as("id"),
         '_c2.as("month").cast(IntegerType),
         '_c3.as("day").cast(IntegerType),
         (('_c4 - 32 ) / 1.8).as("temperature").cast(DoubleType)
