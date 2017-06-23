@@ -17,9 +17,9 @@ object Extraction {
   Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
 
   val spark: SparkSession = SparkSession
-    .builder()
+    .builder
     .appName("Observatory")
-    .config("spark.master", "local")
+    .master("local")
     .getOrCreate()
 
   import spark.implicits._
@@ -27,11 +27,11 @@ object Extraction {
   def stations(stationsFile: String): Dataset[Station] =
     spark
       .read
-      .csv(resourcePath(stationsFile))
+      .csv(resourcePath(stationsFile))    // csv() only works if the file contains a header
       .select(
         concat_ws("-", '_c0, '_c1).as("id"),
         '_c2.as("lat").cast(DoubleType),
-        '_c3.as("long").cast(DoubleType)
+        '_c3.as("lon").cast(DoubleType)
       )
       .where('_c2.isNotNull && '_c3.isNotNull)
       .as[Station]
@@ -84,6 +84,6 @@ object Extraction {
       ))
       .seq
 
-  private def resourcePath(resource: String): String = Paths.get(resource).toUri.toString
+  private def resourcePath(resource: String): String = Paths.get(getClass.getResource(resource).toURI).toString
 
 }
