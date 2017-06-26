@@ -14,7 +14,9 @@ object Visualization {
     * @param location Location where to predict the temperature
     * @return The predicted temperature at `location`
     */
-  def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double = temperatures.find(_._1 == location) match {
+  def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double =
+    temperatures.find(_._1 == location) match {
+
 //TODO Consider the special case of small distance
 //  - calculate collection distances between the known points and the new location
 //  - case Some (dist <= 1 km) => use temperature of the closest point
@@ -22,7 +24,7 @@ object Visualization {
 
     case Some(loc) => loc._2
     case None =>
-      val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(distance)
+      val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(greatCircleDistance)
       idw(weightedLocations)
   }
 
@@ -88,20 +90,24 @@ object Visualization {
     * @param q Point
     * @return  The distance between both points
     */
-  private def distance(p: Location, q: Location): Double = {
+  def greatCircleDistance(p: Location, q: Location): Double = {
     val earth_radius = 6371
 
     val lat1 = toRadians(p.lat)
     val lat2 = toRadians(q.lat)
-    val lonDistance = toRadians(p.lon - q.lon)
+    println(s"lat1: $lat1 | lat2: $lat2")
 
-    val centralAngle = acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lonDistance))
+    val lonDistance = toRadians(p.lon - q.lon)
+    println(s"lonDistance: $lonDistance")
+
+    val arg = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lonDistance)
+    val centralAngle = acos(if (arg > 1) 1 else if (arg < -1) -1 else arg)
 
     earth_radius * centralAngle
   }
 
   /**
-    * Spatial interpolation using the Inverse distance weighting algorithm
+    * Spatial interpolation using the Inverse Distance Weighting algorithm
     *
     * @param weightedLocations  Tupla of known temperatures + weight
     * @return                   The interpolated value
