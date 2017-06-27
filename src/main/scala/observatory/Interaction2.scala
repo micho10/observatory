@@ -53,9 +53,9 @@ object Interaction2 {
     *         in the `selectedLayer` bounds.
     */
   def yearSelection(selectedLayer: Signal[Layer], sliderValue: Signal[Int]): Signal[Int] = {
-    val slider = sliderValue()
-    val bounds = yearBounds(selectedLayer)()
-    Signal(bounds.min max slider min bounds.max)
+    val year = sliderValue()
+    val bounds = selectedLayer().bounds
+    Signal(bounds.min max year min bounds.max)
   }
 
   /**

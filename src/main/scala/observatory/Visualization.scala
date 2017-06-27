@@ -138,9 +138,10 @@ object Visualization {
 //    println(s"lonDistance: $lonDistance | latDistance: $latDistance")
 
     val a = pow(sin(latDistance / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(lonDistance / 2), 2)
+    val fixedA = if (a > 1) 1 else if (a < -1) -1 else a
 //    println(s"a: $a")
 
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    val c = 2 * atan2(sqrt(fixedA), sqrt(1 - fixedA))
 //    println(s"c: $c")
 
     earth_radius * c
