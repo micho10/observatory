@@ -17,27 +17,46 @@ object Visualization {
   def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double =
     temperatures.find(_._1 == location) match {
 
-//TODO Consider the special case of small distance
-//  - calculate collection distances between the known points and the new location
-//  - case Some (dist <= 1 km) => use temperature of the closest point
-//  - case None                => idw()
+      //TODO Consider the special case of small distance
+      //  - calculate collection distances between the known points and the new location
+      //  - case Some (dist <= 1 km) => use temperature of the closest point
+      //  - case None                => idw()
 
-    case Some(loc) => loc._2
-    case None =>
-      val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(greatCircleDistance)
-      idw(weightedLocations)
-  }
+      case Some(loc) => loc._2
+      case None =>
+        val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(greatCircleDistance)
+        idw(weightedLocations)
+    }
+
+//  {
+//    val distanceThreshold = 1
+//    val power = 2.5
+//
+//    temperatures.find(_._1 == location) match {
+//      case Some(loc) => loc._2
+//      case None =>
+//        val weights = temperatures.par.map {
+//          case (loc, _) =>
+//            val distance = greatCircleDistance(loc, location)
+//            if (distance < distanceThreshold) 1 else 1 / pow(distance, power)
+//        }.toList
+//
+//        idw(temperatures, weights)
+//    }
+//
+//  }
 
   /**
     * @param points Pairs containing a value and its associated color
     * @param value The value to interpolate
     * @return The color that corresponds to `value`, according to the color scale defined by `points`
     */
-  def interpolateColor(points: Iterable[(Double, Color)], value: Double): Color = points.find(_._1 == value) match {
-    case Some((_, color)) => color
-    case None             =>
-      val (smaller, greater) = points.toList.sortBy(_._1).partition(_._1 < value)
-      linearInterpolation(smaller.takeRight(1).headOption, greater.headOption, value)
+  def interpolateColor(points: Iterable[(Double, Color)], value: Double): Color =
+    points.find(_._1 == value) match {
+      case Some((_, color)) => color
+      case None             =>
+        val (smaller, greater) = points.toList.sortBy(_._1).partition(_._1 < value)
+        linearInterpolation(smaller.takeRight(1).headOption, greater.headOption, value)
   }
 
   /**
@@ -86,6 +105,9 @@ object Visualization {
   /**
     * Δσ = arccos( sin φ1 * sin φ2 + cos φ1 * cos φ2 * cos (Δλ))
     *
+    * Source: http://www.movable-type.co.uk/scripts/latlong.html
+    * a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)
+    *
     * @param p Point
     * @param q Point
     * @return  The distance between both points
@@ -93,25 +115,44 @@ object Visualization {
   def greatCircleDistance(p: Location, q: Location): Double = {
     val earth_radius = 6371
 
+//    val lat1 = toRadians(p.lat)
+//    val lat2 = toRadians(q.lat)
+//    println(s"lat1: $lat1 | lat2: $lat2")
+//
+//    val lonDistance = toRadians(p.lon - q.lon)
+//    println(s"lonDistance: $lonDistance")
+//
+//    val arg = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lonDistance)
+//    println(s"arg: $arg")
+//
+//    val centralAngle = acos(if (arg > 1) 1 else if (arg < -1) -1 else arg)
+//    println(s"centralAngle: $centralAngle")
+//
+//    earth_radius * centralAngle
     val lat1 = toRadians(p.lat)
     val lat2 = toRadians(q.lat)
-    println(s"lat1: $lat1 | lat2: $lat2")
+//    println(s"lat1: $lat1 | lat2: $lat2")
 
-    val lonDistance = toRadians(p.lon - q.lon)
-    println(s"lonDistance: $lonDistance")
+    val latDistance = toRadians(abs(p.lat - q.lat))
+    val lonDistance = toRadians(abs(p.lon - q.lon))
+//    println(s"lonDistance: $lonDistance | latDistance: $latDistance")
 
-    val arg = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lonDistance)
-    val centralAngle = acos(if (arg > 1) 1 else if (arg < -1) -1 else arg)
+    val a = pow(sin(latDistance / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(lonDistance / 2), 2)
+//    println(s"a: $a")
 
-    earth_radius * centralAngle
+    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+//    println(s"c: $c")
+
+    earth_radius * c
   }
 
-  /**
-    * Spatial interpolation using the Inverse Distance Weighting algorithm
-    *
-    * @param weightedLocations  Tupla of known temperatures + weight
-    * @return                   The interpolated value
-    */
+//  /**
+//    * Spatial interpolation using the Inverse Distance Weighting algorithm
+//    *
+//    * @param weightedLocations  Tupla of known temperatures + weight
+//    * @return                   The interpolated value
+//    */
+//  private def idw(temperatures: Iterable[(Location, Double)], weights: Iterable[Double]): Double = {
   private def idw(weightedLocations: Iterable[(Location, Double, Double)]): Double = {
     var (numerator, denominator) = (0.0, 0.0)
 
@@ -120,6 +161,12 @@ object Visualization {
     } yield (numerator += wloc._2 * wloc._3, denominator += wloc._2)
 
     numerator / denominator
+
+//    val weightsSum = weights.sum
+//
+//    val weightedTemperatures = temperatures.par.unzip._2.zip(weights).map { case (a, b) => a * b }.sum
+//
+//    weightsSum / weightedTemperatures
   }
 
   /**
