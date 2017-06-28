@@ -129,12 +129,12 @@ object Visualization {
 //    println(s"centralAngle: $centralAngle")
 //
 //    earth_radius * centralAngle
-    val lat1 = toRadians(p.lat)
-    val lat2 = toRadians(q.lat)
+    val lat1 = p.lat.toRadians
+    val lat2 = q.lat.toRadians
 //    println(s"lat1: $lat1 | lat2: $lat2")
 
-    val latDistance = toRadians(abs(p.lat - q.lat))
-    val lonDistance = toRadians(abs(p.lon - q.lon))
+    val latDistance = abs(p.lat - q.lat).toRadians
+    val lonDistance = abs(p.lon - q.lon).toRadians
 //    println(s"lonDistance: $lonDistance | latDistance: $latDistance")
 
     val a = pow(sin(latDistance / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(lonDistance / 2), 2)
