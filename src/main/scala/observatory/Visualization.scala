@@ -195,18 +195,18 @@ object Visualization {
     * @return  The color inferred for the new value
     */
   private def linearInterpolation(p: Option[(Double, Color)], q: Option[(Double, Color)], value: Double): Color = {
-    def lerp(p: Double, q: Double, x: Double): Double = (1 - x) * p + x * q
-    def color(baseColor: Color, value: Double): Color =
+    def lerp(min: Double, max: Double, x: Double): Double = (x - min) / (max - min)
+    def color(minColor: Color, maxColor: Color, variation: Double): Color =
       Color(
-        round(baseColor.blue * value).toInt,
-        round(baseColor.green * value).toInt,
-        round(baseColor.red * value).toInt
+        round(minColor.red   + (maxColor.red   - minColor.red)   * variation).toInt,
+        round(minColor.green + (maxColor.green - minColor.green) * variation).toInt,
+        round(minColor.blue  + (maxColor.blue  - minColor.blue)  * variation).toInt
       )
 
     (p, q) match {
       case (Some(p), Some(q))             =>
         val gradient = lerp(p._1, q._1, value)
-        color(p._2, gradient)
+        color(p._2, q._2, gradient)
       case (Some((pValue, pColor)), None) => pColor
       case (None, Some((qValue, qColor))) => qColor
       case _                              => Color(0, 0, 0)
@@ -214,30 +214,4 @@ object Visualization {
   }
 
 }
-
-//https://stackoverflow.com/questions/4353525/floating-point-linear-interpolation
-//http://www.scala-notes.org/2010/08/a-generic-interpolate-method-using-type-classes/
-//http://zuqqhi2.com/en/linear-interpolation
-
-//private def interpolate(index: Int, x: T): T = {
-//  /* Interpolate or extrapolate linearly between point number index-1 and index. */
-//  assert(index > 0)
-//
-//  val x1 = X(index-1)
-//  val x2 = X(index)
-//  val y1 = Y(index-1)
-//  val y2 = Y(index)
-//  val f = implicitly[Field[T]]
-//
-//  // w = (x - x1) / (x2 - x1)
-//  val w = f./(f.-(x, x1),
-//  f.-(x2, x1))
-//  // u = 1 - w
-//  val u = f.-(f.one, w)
-//
-//  // result = y1 * u + y2 * w
-//  f.+(f.*(y1, u),
-//  f.*(y2, w))
-//}
-//}
 

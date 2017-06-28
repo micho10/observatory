@@ -41,7 +41,7 @@ class VisualizationTest extends FunSuite with Checkers {
         ( 12.0, Color(255, 255,   0)), (  0.0, Color(  0, 255, 255)),
         (-15.0, Color(  0,   0, 255)), (-27.0, Color(255,   0, 255)),
         (-50.0, Color( 33,   0, 107)), (-60.0, Color(  0,   0,   0)))
-    assertResult(Color(255, 255,   0))(interpolateColor(scale, 12.0))
+    assertResult(Color(255, 255,   0))(interpolateColor(scale, 12))
     assertResult(Color(255, 255, 255))(interpolateColor(scale, 62))
     assertResult(Color(128, 255, 128))(interpolateColor(scale,  6))
   }
