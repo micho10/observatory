@@ -1,14 +1,36 @@
 package observatory
 
 
+import java.io.File
+
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.prop.Checkers
 import observatory.Visualization._
+import org.scalatest.Matchers._
 
 @RunWith(classOf[JUnitRunner])
 class VisualizationTest extends FunSuite with Checkers {
+
+  // Test values
+  private val year = 2013
+  private val stationsFile = "/stations.csv"
+  private val temperaturesFile = s"/$year.csv"
+  private lazy val temperatures = Extraction.locateTemperatures(year, stationsFile, temperaturesFile)
+  private lazy val yearlyAverage = Extraction.locationYearlyAverageRecords(temperatures)
+
+  private val scale = Seq(
+    (60.0,  Color(255, 255, 255)),
+    (32.0,  Color(255,   0,   0)),
+    (12.0,  Color(255, 255,   0)),
+    (0.0,   Color(  0, 255, 255)),
+    (-15.0, Color(  0,   0, 255)),
+    (-27.0, Color(255,   0, 255)),
+    (-50.0, Color( 33,   0, 107)),
+    (-60.0, Color(  0,   0,   0))
+  )
+
 
   test("greatCircleDistance test zero distance") {
     val distance = greatCircleDistance(Location(-12, 85), Location(-12, 85))
@@ -18,10 +40,12 @@ class VisualizationTest extends FunSuite with Checkers {
   }
 
   test("greatCircleDistance test (extreme case 1)") {
+    val epsilon = 1e-4
+
     val distance = greatCircleDistance(Location(90,-180), Location(12, -95))
     println(s"distance: $distance")
     println("=========================================")
-    assert(distance === 10010)
+    distance should be (10010.0 +- epsilon)
   }
 
   test("color interpolation sorted") {
@@ -32,13 +56,6 @@ class VisualizationTest extends FunSuite with Checkers {
   }
 
   test("Color interpolation unsorted") {
-    // UNSORTED SCALE!!!
-    val scale =
-      List(
-        ( 60.0, Color(255, 255, 255)), ( 32.0, Color(255,   0,   0)),
-        ( 12.0, Color(255, 255,   0)), (  0.0, Color(  0, 255, 255)),
-        (-15.0, Color(  0,   0, 255)), (-27.0, Color(255,   0, 255)),
-        (-50.0, Color( 33,   0, 107)), (-60.0, Color(  0,   0,   0)))
     assertResult(Color(255, 255,   0))(interpolateColor(scale,  12))
     assertResult(Color(255, 255, 255))(interpolateColor(scale,  62))
     assertResult(Color(  0,   0,   0))(interpolateColor(scale, -62))
@@ -48,5 +65,13 @@ class VisualizationTest extends FunSuite with Checkers {
 //  test("Predict temperature") {
 //    predictTemperature(, Location(90.0,-180.0))
 //  }
+
+  test("Visualize image") {
+
+    val img = visualize(yearlyAverage, scale)
+    img.output(new File(s"target/$year-sample.png"))
+
+    assertResult(360 * 180)(img.pixels.length)
+  }
 
 }

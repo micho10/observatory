@@ -35,7 +35,7 @@ case class ReadingDate(year: Int, month: Int, day: Int) {
   */
 case class Tile(x: Int, y: Int, zoom: Int) {
   def toLocation = Location(
-    toDegrees(atan(sinh(Pi * (1.0 - 2.0 * y / (1 << zoom))))),
+    atan(sinh(Pi * (1.0 - 2.0 * y / (1 << zoom)))).toDegrees,
     x / (1 << zoom) * 360 - 180
   )
 
