@@ -14,7 +14,7 @@ import org.apache.spark.sql.types.{DoubleType, IntegerType}
   */
 object Extraction {
 
-  Logger.getLogger("org.apache.spark").setLevel(Level.WARN)
+  Logger.getLogger("org.apache.spark").setLevel(Level.ERROR)
 
   val spark: SparkSession = SparkSession
     .builder
