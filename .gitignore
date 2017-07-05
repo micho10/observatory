@@ -83,3 +83,5 @@ src/main/resources
 /metastore_db/
 
 locate*
+
+output

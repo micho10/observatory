@@ -19,7 +19,8 @@ object Extraction {
   val spark: SparkSession = SparkSession
     .builder
     .appName("Observatory")
-    .master("local")
+    .master("local[8]")
+    .config("spark.executor.memory", "8g")
     .getOrCreate()
 
   import spark.implicits._
@@ -83,6 +84,7 @@ object Extraction {
         (a, r) => a + r._3 / record.size
       ))
       .seq
+
 
   private def resourcePath(resource: String): String = Paths.get(getClass.getResource(resource).toURI).toString
 
