@@ -73,13 +73,15 @@ object Visualization {
       ...
       32040 -> (-180, 0)   ... 32220 -> (0, 0)   ... 32399 -> (179, 0)
       ...
-      64440 -> (-180, -90) ... 64620 -> (0, -90) ... 64799 -> (179, -90)
+      64440 -> (-180, -89) ... 64620 -> (0, -89) ... 64799 -> (179, -89)
      */
     def project(position: Int): Location = {
       val x = position % image_width
       val y = position / image_width
 
-      Location(image_height / 2 - y, x - image_width / 2)
+      val (lon, lat) = toCoords(x, y)
+//      Location(image_height / 2 - y, x - image_width / 2)
+      Location(lat, lon)
     }
 
     def createPixelMap(width: Int, height: Int): Seq[Pixel] =
@@ -212,6 +214,12 @@ object Visualization {
       case _                              => Color(0, 0, 0)
     }
   }
+
+  /************************************************
+    * pos(x*y) => coords(x,y) => location(lat,lon)
+    * *********************************************
+    */
+  def toCoords(x: Int, y: Int): (Int, Int) = (x % 360 - 180, 90 - y % 180)
 
 }
 

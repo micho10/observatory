@@ -14,7 +14,7 @@ import org.scalatest.Matchers._
 class VisualizationTest extends FunSuite with Checkers {
 
   // Test values
-  private val year = 2013
+  private val year = 1975
   private val stationsFile = "/stations.csv"
   private val temperaturesFile = s"/$year.csv"
   private lazy val temperatures = Extraction.locateTemperatures(year, stationsFile, temperaturesFile)
@@ -30,6 +30,10 @@ class VisualizationTest extends FunSuite with Checkers {
     (-50.0, Color( 33,   0, 107)),
     (-60.0, Color(  0,   0,   0))
   )
+
+  test("locaction yearly average records") {
+
+  }
 
 
   test("greatCircleDistance test zero distance") {
@@ -63,7 +67,7 @@ class VisualizationTest extends FunSuite with Checkers {
   }
 
 //  test("Predict temperature") {
-//    predictTemperature(, Location(90.0,-180.0))
+//    predictTemperature(temperatures, Location(90.0,-180.0))
 //  }
 
   test("Visualize image") {
@@ -72,6 +76,21 @@ class VisualizationTest extends FunSuite with Checkers {
     img.output(new File(s"target/$year-sample.png"))
 
     assertResult(360 * 180)(img.pixels.length)
+  }
+
+//  def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double
+//  def visualize(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)]): Image
+
+//  def toCoords(x: Int, y: Int): (Int, Int)
+
+  test("Conversion from pos(x, y) to coords(x, y)") {
+    assertResult((-180, 90))(toCoords(0, 0))
+    assertResult((-90, 40))(toCoords(90, 50))
+    assertResult((0, 0))(toCoords(180, 90))
+    assertResult((90, -50))(toCoords(270, 140))
+    assertResult((179, -89))(toCoords(359, 179))
+    assertResult((-180, 90))(toCoords(360, 180))
+    assertResult((-179, 89))(toCoords(361, 181))
   }
 
 }
