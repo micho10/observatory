@@ -15,7 +15,7 @@ class VisualizationTest extends FunSuite with Checkers {
 
   // Test values
   private val year = 1975
-  private val stationsFile = "/stations.csv"
+  private val stationsFile = "/stations50.csv"
   private val temperaturesFile = s"/$year.csv"
   private lazy val temperatures = Extraction.locateTemperatures(year, stationsFile, temperaturesFile)
   private lazy val yearlyAverage = Extraction.locationYearlyAverageRecords(temperatures)
@@ -31,10 +31,19 @@ class VisualizationTest extends FunSuite with Checkers {
     (-60.0, Color(  0,   0,   0))
   )
 
-  test("locaction yearly average records") {
-
+  test("location yearly average records") {
+    yearlyAverage.take(50) foreach println
+    assertResult(49)(yearlyAverage.size)
+    assertResult(1)(yearlyAverage.count(_._1 == Location(69.976,23.372)))
   }
 
+  test("Predict temperature") {
+    val epsilon = 1e-4
+
+    val temperature = predictTemperature(yearlyAverage, Location(18.433,-66.011))
+    temperature should be (26.53967 +- epsilon)
+//    assertResult(26.539573820395745)(predictTemperature(yearlyAverage, Location(18.433,-66.011)))
+  }
 
   test("greatCircleDistance test zero distance") {
     val distance = greatCircleDistance(Location(-12, 85), Location(-12, 85))
@@ -66,10 +75,6 @@ class VisualizationTest extends FunSuite with Checkers {
     assertResult(Color(128, 255, 128))(interpolateColor(scale,   6))
   }
 
-//  test("Predict temperature") {
-//    predictTemperature(temperatures, Location(90.0,-180.0))
-//  }
-
   test("Visualize image") {
 
     val img = visualize(yearlyAverage, scale)
@@ -78,6 +83,7 @@ class VisualizationTest extends FunSuite with Checkers {
     assertResult(360 * 180)(img.pixels.length)
   }
 
+  // TODO: Test
 //  def predictTemperature(temperatures: Iterable[(Location, Double)], location: Location): Double
 //  def visualize(temperatures: Iterable[(Location, Double)], colors: Iterable[(Double, Color)]): Image
 

@@ -103,7 +103,6 @@ object Visualization {
     Image(image_width, image_height, pixels.toArray)
   }
 
-
   /**
     * Δσ = arccos( sin φ1 * sin φ2 + cos φ1 * cos φ2 * cos (Δλ))
     *
@@ -184,8 +183,8 @@ object Visualization {
   private def weightKnownLocations(temperatures: Iterable[(Location, Double)], location: Location, power: Double)
                                   (distance: (Location, Location) => Double): Iterable[(Location, Double, Double)] = {
     def weight(newLocation: Location, known: Location): Double = 1 / pow(distance(known, location), power)
-
     assert(power > 0)
+
     temperatures.map(temp => (temp._1, temp._2, weight(location, temp._1)))
   }
 

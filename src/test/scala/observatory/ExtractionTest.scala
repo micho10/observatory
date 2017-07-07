@@ -22,7 +22,7 @@ class ExtractionTest extends FunSuite {
 
 
   test("Extract the stations information from the stations file") {
-    stations.show
+//    stations.show
     stations.filter((station: Station) => station.id == "035963").show
     assertResult(15)(stations.count())
     assertResult(0)(stations.filter((station: Station) => station.id == "012345").count())
@@ -32,7 +32,7 @@ class ExtractionTest extends FunSuite {
   }
 
   test("Extract the temperature information from the temperatures file") {
-    temperatures.show(40)
+//    temperatures.show(40)
     temperatures.filter((reading: TempReading) => reading.id == "049999").show
     assertResult(31)(temperatures.count())
     assertResult(0)(temperatures.filter((reading: TempReading) => reading.id == "012345").count())
@@ -46,12 +46,12 @@ class ExtractionTest extends FunSuite {
   }
 
   test("Located temperatures") {
-    locatedTemperatures.take(30) foreach println
+//    locatedTemperatures.take(30) foreach println
     assertResult(28)(locatedTemperatures.size)
   }
 
   test("Calculate yearly average for every location") {
-    yearlyAverage foreach println
+//    yearlyAverage foreach println
     assertResult(13)(yearlyAverage.size)
     assertResult(0.5555555555555556)(yearlyAverage.filter(_._1 == Location(72.58, -38.46)).head._2)
   }
