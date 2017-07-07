@@ -80,7 +80,6 @@ object Visualization {
       val y = position / image_width
 
       val (lon, lat) = toCoords(x, y)
-//      Location(image_height / 2 - y, x - image_width / 2)
       Location(lat, lon)
     }
 
