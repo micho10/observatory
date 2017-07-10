@@ -45,47 +45,67 @@ class VisualizationTest extends FunSuite with Checkers {
   }
 
   test("greatCircleDistance test lat unit distance") {
-    val epsilon = 1e-1
+    val epsilon = 1e-4
     val distance = greatCircleDistance(Location(0, 0), Location(1, 0))
     println(s"distance: $distance")
     println("=========================================")
-    distance should be (111.2 +- epsilon)
+    distance should be (111.19492664455873 +- epsilon)
   }
 
   test("greatCircleDistance test lon unit distance") {
-    val epsilon = 1e-1
+    val epsilon = 1e-4
     val distance = greatCircleDistance(Location(0, 0), Location(0, 1))
     println(s"distance: $distance")
     println("=========================================")
-    distance should be (111.2 +- epsilon)
+    distance should be (111.19492664455873 +- epsilon)
   }
 
   test("greatCircleDistance test unit distance") {
-    val epsilon = 1e-1
+    val epsilon = 1e-4
     val distance = greatCircleDistance(Location(0, 0), Location(1, 1))
     println(s"distance: $distance")
     println("=========================================")
-    distance should be (157.2 +- epsilon)
+    distance should be (157.24938127194397 +- epsilon)
   }
 
-  test("greatCircleDistance test (extreme case 1)") {
+  test("greatCircleDistance test (45, 0) -> (0, 0)") {
+    val epsilon = 1e-4
+
+    val distance = greatCircleDistance(Location(45, 0), Location(0, 0))
+    println(s"distance: $distance")
+    println("=========================================")
+    distance should be (5003.771699005144 +- epsilon)
+  }
+
+  test("greatCircleDistance test (90, -180) -> (0, 0)") {
+    val epsilon = 1e-4
+
+    val distance = greatCircleDistance(Location(90, -180), Location(0, 0))
+    println(s"distance: $distance")
+    println("=========================================")
+    distance should be (10007.543398010286 +- epsilon)
+  }
+
+  test("greatCircleDistance test (-89, -180) -> (0, 0)") {
     val epsilon = 1e-4
 
     val distance = greatCircleDistance(Location(-89, -180), Location(0, 0))
     println(s"distance: $distance")
     println("=========================================")
-    distance should be (10120.0 +- epsilon)
+    distance should be (10118.738324654845 +- epsilon)
   }
 
-  test("Predict temperature small data set 1") {
+
+
+  test("Predict temperature small data set 1 at (0, -45)") {
     assertResult(15)(predictTemperature(List((Location(45, -90), 10), (Location(-45, 0), 20)), Location(0, -45)))
   }
 
-  test("Predict temperature small data set 2") {
+  test("Predict temperature small data set 2 at (0, 0)") {
     assertResult(10)(predictTemperature(List((Location(0, 0), 10)), Location(0, 0)))
   }
 
-  test("Predict temperature small data set 3") {
+  test("Predict temperature small data set 3 at (0, 0)") {
     assertResult(52)(predictTemperature(List((Location(45, -90), 0), (Location(-45, 0), 59.028308521858634)), Location(0, 0)))
   }
 
