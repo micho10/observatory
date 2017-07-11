@@ -30,7 +30,7 @@ object Interaction {
     val transparency = 127
 
     def createPixelMap(width: Int, height: Int): Seq[Pixel] =
-      (0 until height * width).par.map{ position =>
+      Range(0, height * width).par.map{ position =>
 
         val xProjection = (position % width) / width + x
         val yProjection = (position / width) / width + x

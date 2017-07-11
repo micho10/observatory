@@ -50,8 +50,8 @@ object Visualization2 {
 
     def splitTile: IndexedSeq[(Int, Tile)] =
       for {
-        i <- 0 until image_width
-        j <- 0 until image_height
+        i <- Range(0, image_width)
+        j <- Range(0, image_height)
       } yield i + j * image_width -> Tile(x + i, y + j, zoom)
 
     val pixels = splitTile.par.map {

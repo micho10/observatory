@@ -9,20 +9,26 @@ import scala.math._
 
 
 case class Location(lat: Double, lon: Double) {
+  // Location geographical coordinates in radians
   lazy val point = Point(lat.toRadians, lon.toRadians)
 }
 
 case class Point(latRad: Double, lonRad: Double) {
+  // Point coordinates in geographical coordinates
   lazy val location = Location(latRad.toDegrees, lonRad.toDegrees)
 
   /**
-    * Added for special case: https://www.coursera.org/learn/scala-capstone/discussions/weeks/2/threads/
+    * Added for special case: https://www.coursera.org/learn/scala-capstone/discussions/weeks/2/threads/YY0u6Ax8EeeqzRJFs29uDA
     *
     * @param other Point
     * @return      distance on Earth in meters
     */
-  def haversineEarthDistance(other: Point): Double =
-    Visualization.earth_radius * greatCircleDistance(other) * 1000
+  def haversineEarthDistance(other: Point): Double = {
+    // Mean Earth radius in Km
+    val earth_radius = 6372.8
+
+    earth_radius * greatCircleDistance(other) * 1000
+  }
 
   /**
     * Δσ = arccos( sin φ1 * sin φ2 + cos φ1 * cos φ2 * cos (Δλ))

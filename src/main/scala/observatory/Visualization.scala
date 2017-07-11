@@ -9,9 +9,6 @@ import scala.math.{pow, round}
   */
 object Visualization {
 
-  // Mean Earth radius in Km
-  val earth_radius = 6372.8
-
   /**
     * @param temperatures Known temperatures: pairs containing a location and the temperature at this location
     * @param location     Location where to predict the temperature
@@ -117,7 +114,7 @@ object Visualization {
     }
 
     def createPixelMap(width: Int, height: Int): Seq[Pixel] =
-      (0 until height * width).par.map{ position =>
+      Range(0, height * width).par.map{ position =>
         position -> interpolateColor(
           colors,
           predictTemperature(
