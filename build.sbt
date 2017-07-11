@@ -46,3 +46,7 @@ assignmentsMap := Map(
 )
 
 parallelExecution in Test := false // So that tests are executed for each milestone, one after the other
+
+fork := true
+
+javaOptions += "Xmx 1500m"

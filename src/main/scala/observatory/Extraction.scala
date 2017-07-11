@@ -20,7 +20,8 @@ object Extraction {
     .builder
     .appName("Observatory")
     .master("local[8]")
-    .config("spark.executor.memory", "8g")
+    .config("spark.master", "[*]")
+    .config("spark.executor.memory", "1G")
     .getOrCreate()
 
   import spark.implicits._
