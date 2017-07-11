@@ -20,7 +20,6 @@ object Extraction {
     .builder
     .appName("Observatory")
     .master("local[8]")
-    .config("spark.master", "[*]")
     .config("spark.executor.memory", "1G")
     .getOrCreate()
 

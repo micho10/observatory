@@ -49,4 +49,3 @@ parallelExecution in Test := false // So that tests are executed for each milest
 
 fork := true
 
-javaOptions += "Xmx 1500m"

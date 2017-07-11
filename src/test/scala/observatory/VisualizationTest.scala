@@ -36,7 +36,8 @@ class VisualizationTest extends FunSuite with Checkers {
   }
 
   test("greatCircleDistance test zero distance") {
-    val distance = greatCircleDistance(Location(-12, 85), Location(-12, 85))
+    val location = Location(-12, 85)
+    val distance = location.point.greatCircleDistance(Location(-12, 85).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     assertResult(0)(distance)
@@ -44,7 +45,8 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test lat unit distance") {
     val epsilon = 1e-4
-    val distance = greatCircleDistance(Location(0, 0), Location(1, 0))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(1, 0).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     distance should be (111.19492664455873 +- epsilon)
@@ -52,7 +54,8 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test lon unit distance") {
     val epsilon = 1e-4
-    val distance = greatCircleDistance(Location(0, 0), Location(0, 1))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(0, 1).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     distance should be (111.19492664455873 +- epsilon)
@@ -60,7 +63,8 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test unit distance") {
     val epsilon = 1e-4
-    val distance = greatCircleDistance(Location(0, 0), Location(1, 1))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(1, 1).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     distance should be (157.24938127194397 +- epsilon)
@@ -68,8 +72,8 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test (45, 0) -> (0, 0)") {
     val epsilon = 1e-4
-
-    val distance = greatCircleDistance(Location(45, 0), Location(0, 0))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(45, 0).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     distance should be (5003.771699005144 +- epsilon)
@@ -77,8 +81,8 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test (90, -180) -> (0, 0)") {
     val epsilon = 1e-4
-
-    val distance = greatCircleDistance(Location(90, -180), Location(0, 0))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(90, -180).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     distance should be (10007.543398010286 +- epsilon)
@@ -86,8 +90,8 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test (-89, -180) -> (0, 0)") {
     val epsilon = 1e-4
-
-    val distance = greatCircleDistance(Location(-89, -180), Location(0, 0))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(-89, -180).point)
 //    println(s"distance: $distance")
 //    println("=========================================")
     distance should be (10118.738324654845 +- epsilon)
@@ -95,22 +99,12 @@ class VisualizationTest extends FunSuite with Checkers {
 
   test("greatCircleDistance test (37.358, -78.438) -> (37.957, -78.439)") {
     val epsilon = 1e-4
-
-    val distance = greatCircleDistance(Location(37.358, -78.438), Location(0, 0))
+    val location = Location(0, 0)
+    val distance = location.point.greatCircleDistance(Location(37.358, -78.438).point)
     println(s"distance: $distance")
     println("=========================================")
     distance should be (66.77 +- epsilon)
   }
-
-  test("greatCircleDistance test (38.35, -78.433) -> (37.957, -78.439)") {
-    val epsilon = 1e-4
-
-    val distance = greatCircleDistance(Location(-89, -180), Location(0, 0))
-    println(s"distance: $distance")
-    println("=========================================")
-    distance should be (44.27 +- epsilon)
-  }
-
 
 
   test("Predict temperature small data set 1 at (0, -45)") {
