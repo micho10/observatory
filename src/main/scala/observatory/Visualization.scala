@@ -24,7 +24,7 @@ object Visualization {
 
       case Some(loc) => loc._2
       case None =>
-        val weightedLocations = weightKnownLocations(temperatures, location, power = 3)(greatCircleDistance)
+        val weightedLocations = weightKnownLocations(temperatures, location, power = 2)(greatCircleDistance)
         idw(weightedLocations)
     }
 
@@ -161,6 +161,11 @@ object Visualization {
       wloc <- weightedLocations
     } yield (numerator += wloc._2 * wloc._3, denominator += wloc._2)
 
+//    println("[DEBUG] weightedLocations")
+    weightedLocations.foreach(println)
+//    println("=============================================")
+
+//    println(s"numerator: $numerator / denominator: $denominator")
     numerator / denominator
 
 //    val weightsSum = weights.sum
