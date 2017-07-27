@@ -3,13 +3,15 @@ package observatory
 import java.io.File
 import java.time.LocalDate
 
+import scala.io.StdIn._
+
 
 object Main extends App {
 
   val year = 1975
   val stationsFile = "/stations.csv"
 
-  private val colors = Seq(
+  private val palette = Seq(
     (60.0,  Color(255, 255, 255)),
     (32.0,  Color(255,   0,   0)),
     (12.0,  Color(255, 255,   0)),
@@ -62,29 +64,60 @@ object Main extends App {
       printToFile(new File(s"output/average-$year.csv")) {p => temps.foreach(p.println)}
 
     println("Visualizing temperature predictions")
-    val image = Visualization.visualize(temperatures, colors)
+    val image = Visualization.visualize(temperatures, palette)
     image.output(new File("output/some-image.png"))
     println("Created temperatures image")
   }
 
+  def saveImage(year: Int, zoom: Int, x: Int, y: Int, data: Iterable[(Location, Double)]): File = {
+    println(s"creating => target/temperatures/$year/$zoom/$x-$y.png")
+    val img = Interaction.tile(data, palette, zoom, x, y)
+    img.output(new java.io.File(s"../../target/temperatures/$year/$zoom/$x-$y.png"))
+  }
+
+//  val data: Set[(Int, Iterable[(Location, Double)])] = Set((1975, locateAverage))
+//  Interaction.generateTiles(data, saveImage)
 
 
 
-  println("######## Observatory started ########")
+println("######## Observatory started ########")
+
+//  // readLine: lets you prompt the user and also read their command line input
+//  val name = readLine("Year? ")
+//
+//  // readInt: read a simple Int
+//  print("Year (1975 - 2015)? ")
+//  val year = readInt()
+
+//  // readInt: read a simple Int
+//  print("Zoom (0 - 3)? ")
+//  val zoom = readInt()
+
 
   // Extract localized temperatures
 //  val locatedTemps = (1975 to 1976).map(year => extractData(year, stationsFile, s"/$year.csv")).head
 //  (1982 to 1984).par.map(year => extractData(year, stationsFile, s"/$year.csv"))
 
+  println("### Extracting data ...")
+
   // Extract temperature data
   val temperatures = extractData(year, stationsFile, s"/$year.csv")
+
+  println("### Calculating yearly average ...")
 
   // Calculate yearly average
   val averageTemps = yearlyAverage(year, temperatures)
 
+  println("### Visualizing ...")
+
   // Create image of temperatures
 //  val averageTemps = yearlyAverage(year, temperatures)
   visualization(year, averageTemps)
+
+  println("### Generating tiles ...")
+
+//  val image = Interaction.tile(averageTemps, palette, zoom, )
+  Interaction.generateTiles(Seq((year, averageTemps)), saveImage)
 
   println("######## Observatory finished ########")
 
