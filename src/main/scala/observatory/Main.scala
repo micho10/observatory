@@ -68,6 +68,8 @@ object Main extends App {
   }
 
 
+
+
   println("######## Observatory started ########")
 
   // Extract localized temperatures
@@ -87,3 +89,4 @@ object Main extends App {
   println("######## Observatory finished ########")
 
 }
+

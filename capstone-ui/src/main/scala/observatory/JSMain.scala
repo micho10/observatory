@@ -5,9 +5,10 @@ import leaflet.{L, MapOptions, ZoomOptions}
 import scala.scalajs.js
 import org.scalajs.dom.{Element, Event, Node, document}
 import org.scalajs.dom.html.Input
+import sun.misc.Signal
 
 import scalatags.{DataConverters, LowPriorityImplicits}
-import scalatags.JsDom.{Cap, Aggregate, tags, attrs, styles}
+import scalatags.JsDom.{Aggregate, Cap, attrs, styles, tags}
 
 object Implicits extends Cap with Aggregate with DataConverters with LowPriorityImplicits
 import Implicits._
