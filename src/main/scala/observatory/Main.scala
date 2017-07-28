@@ -1,6 +1,6 @@
 package observatory
 
-import java.io.File
+import java.io.{File, FileOutputStream}
 import java.time.LocalDate
 
 import scala.io.StdIn._
@@ -8,7 +8,7 @@ import scala.io.StdIn._
 
 object Main extends App {
 
-  val year = 1975
+  val year = 1976
   val stationsFile = "/stations.csv"
 
   private val palette = Seq(
@@ -27,6 +27,11 @@ object Main extends App {
     val p = new java.io.PrintWriter(f)
     try { op(p) } finally { p.close() }
   }
+
+//  def writeToFile(f: java.io.File)(op: java.io.FileOutputStream => Unit): Unit = {
+//    val p = new FileOutputStream(f)
+//    try { op(p) } finally { p.close() }
+//  }
 
   def extractData(year: Int, stationsFile: String, temperaturesFile: String): Iterable[(LocalDate, Location, Double)] = {
     def writeResults(year: Int, temps: Iterable[(LocalDate, Location, Double)]): Unit =
@@ -65,14 +70,15 @@ object Main extends App {
 
     println("Visualizing temperature predictions")
     val image = Visualization.visualize(temperatures, palette)
-    image.output(new File("output/some-image.png"))
+    image.output(new File(s"output/visual-$year.png"))
     println("Created temperatures image")
   }
 
-  def saveImage(year: Int, zoom: Int, x: Int, y: Int, data: Iterable[(Location, Double)]): File = {
+  def saveImage(year: Int, zoom: Int, x: Int, y: Int, data: Iterable[(Location, Double)]): Unit = {
     println(s"creating => target/temperatures/$year/$zoom/$x-$y.png")
-    val img = Interaction.tile(data, palette, zoom, x, y)
-    img.output(new java.io.File(s"../../target/temperatures/$year/$zoom/$x-$y.png"))
+    val image = Interaction.tile(data, palette, zoom, x, y)
+    image.output(new java.io.File(s"target/temperatures/$year/$zoom/$x-$y.png"))
+    println("Created tile image")
   }
 
 //  val data: Set[(Int, Iterable[(Location, Double)])] = Set((1975, locateAverage))
@@ -111,12 +117,10 @@ println("######## Observatory started ########")
   println("### Visualizing ...")
 
   // Create image of temperatures
-//  val averageTemps = yearlyAverage(year, temperatures)
   visualization(year, averageTemps)
 
   println("### Generating tiles ...")
 
-//  val image = Interaction.tile(averageTemps, palette, zoom, )
   Interaction.generateTiles(Seq((year, averageTemps)), saveImage)
 
   println("######## Observatory finished ########")
